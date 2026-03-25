@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitClose — Sales Trainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080b0f;--s1:#0e1318;--s2:#141b22;--s3:#1c2530;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#eef2f6;--muted:#6b7885;--muted2:#8c98a8;
+  --green:#22d48f;--green-s:rgba(34,212,143,0.12);--green-b:rgba(34,212,143,0.3);
+  --amber:#f5b944;--amber-s:rgba(245,185,68,0.12);--amber-b:rgba(245,185,68,0.3);
+  --red:#f05252;--red-s:rgba(240,82,82,0.12);--red-b:rgba(240,82,82,0.3);
+  --blue:#4da6ff;--blue-s:rgba(77,166,255,0.1);--blue-b:rgba(77,166,255,0.3);
+  --r:10px;--r-lg:16px;
+}
+body{font-family:'Instrument Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow:hidden}
+.screen{display:none;width:100%;height:100vh}
+.screen.active{display:flex}
+
+/* LANDING */
+#screen-landing{flex-direction:column;align-items:center;justify-content:center;position:relative;overflow-y:auto}
+.bg-glow{position:absolute;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(34,212,143,0.05) 0%,transparent 70%);top:-150px;left:50%;transform:translateX(-50%);pointer-events:none}
+.landing-inner{position:relative;z-index:1;text-align:center;max-width:580px;padding:2rem 1.5rem}
+.brand{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--green);margin-bottom:1.5rem;display:flex;align-items:center;justify-content:center;gap:8px}
+.brand-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.landing-title{font-family:'Syne',sans-serif;font-size:clamp(2.2rem,6vw,3.6rem);font-weight:800;line-height:1.05;letter-spacing:-.03em;margin-bottom:.875rem}
+.landing-title span{background:linear-gradient(135deg,var(--green),#4fffb0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.landing-sub{font-size:15px;color:var(--muted2);line-height:1.7;margin-bottom:2rem}
+.section-label{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;text-align:left}
+
+.level-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem}
+.level-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.1rem 1rem;cursor:pointer;transition:all .2s;text-align:left;position:relative;overflow:hidden}
+.level-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:opacity .2s}
+.level-card.easy::before{background:var(--green)}.level-card.medium::before{background:var(--amber)}.level-card.hard::before{background:var(--red)}
+.level-card:hover{border-color:var(--border2);transform:translateY(-2px)}.level-card:hover::before{opacity:1}
+.level-card.selected{transform:translateY(-2px)}
+.level-card.easy.selected{border-color:var(--green-b);background:var(--green-s)}
+.level-card.medium.selected{border-color:var(--amber-b);background:var(--amber-s)}
+.level-card.hard.selected{border-color:var(--red-b);background:var(--red-s)}
+.level-card.easy.selected::before,.level-card.medium.selected::before,.level-card.hard.selected::before{opacity:1}
+.level-badge{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:20px;display:inline-block;margin-bottom:8px}
+.easy .level-badge{background:var(--green-s);color:var(--green)}.medium .level-badge{background:var(--amber-s);color:var(--amber)}.hard .level-badge{background:var(--red-s);color:var(--red)}
+.level-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:3px}
+.level-desc{font-size:11.5px;color:var(--muted2);line-height:1.5}
+
+.mode-toggle{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.75rem}
+.mode-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.1rem;cursor:pointer;transition:all .2s;display:flex;align-items:flex-start;gap:12px}
+.mode-card:hover{border-color:var(--border2)}
+.mode-card.selected{border-color:var(--blue-b);background:var(--blue-s)}
+.mode-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:var(--s2)}
+.mode-card.selected .mode-icon{background:var(--blue-s)}
+.mode-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:3px}
+.mode-desc{font-size:11.5px;color:var(--muted2);line-height:1.5}
+
+.start-btn{width:100%;padding:15px;background:var(--green);color:#040c08;border:none;border-radius:var(--r);font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:.03em;cursor:pointer;transition:all .2s}
+.start-btn:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(34,212,143,.25)}
+.start-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* CHAT TOPBAR */
+#screen-chat{flex-direction:column}
+.chat-topbar{display:flex;align-items:center;justify-content:space-between;padding:.875rem 1.5rem;background:var(--s1);border-bottom:1px solid var(--border);flex-shrink:0}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.back-btn{width:32px;height:32px;border-radius:8px;background:var(--s2);border:1px solid var(--border);color:var(--muted2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .15s}
+.back-btn:hover{border-color:var(--border2);color:var(--text)}
+.client-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;flex-shrink:0}
+.client-name-sm{font-weight:600;font-size:14px}.client-tag-sm{font-size:11px;color:var(--muted2)}
+.level-pill{font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;letter-spacing:.06em;text-transform:uppercase}
+.pill-easy{background:var(--green-s);color:var(--green);border:1px solid var(--green-b)}
+.pill-medium{background:var(--amber-s);color:var(--amber);border:1px solid var(--amber-b)}
+.pill-hard{background:var(--red-s);color:var(--red);border:1px solid var(--red-b)}
+.mode-pill{font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;letter-spacing:.06em;text-transform:uppercase;background:var(--blue-s);color:var(--blue);border:1px solid var(--blue-b)}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.msg-count{font-size:12px;color:var(--muted);background:var(--s2);border:1px solid var(--border);padding:4px 10px;border-radius:20px}
+.finish-btn{padding:7px 14px;border-radius:8px;font-family:'Instrument Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--green-b);background:var(--green-s);color:var(--green);transition:all .15s}
+.finish-btn:hover{background:rgba(34,212,143,.2)}.finish-btn:disabled{opacity:.35;cursor:not-allowed}
+
+/* TEXT CHAT */
+.chat-body{flex:1;overflow-y:auto;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;scroll-behavior:smooth}
+.sys-msg{text-align:center;font-size:12px;color:var(--muted);padding:5px 14px;background:var(--s2);border:1px solid var(--border);border-radius:20px;align-self:center;max-width:380px}
+.bubble-wrap{display:flex;gap:9px;max-width:72%;animation:msgIn .2s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.bubble-wrap.me{align-self:flex-end;flex-direction:row-reverse}
+.b-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:2px;font-family:'Syne',sans-serif}
+.b-name{font-size:11px;color:var(--muted);margin-bottom:3px;font-weight:500}
+.bubble-wrap.me .b-name{text-align:right}
+.bubble{padding:10px 13px;border-radius:14px;font-size:14px;line-height:1.65;border:1px solid var(--border);background:var(--s2)}
+.bubble-wrap.me .bubble{background:var(--s3);border-color:var(--border2);border-top-right-radius:4px}
+.bubble-wrap.them .bubble{border-top-left-radius:4px}
+.typing-bub{display:flex;gap:5px;align-items:center;padding:12px 14px}
+.td{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:tdB 1.1s infinite}
+.td:nth-child(2){animation-delay:.15s}.td:nth-child(3){animation-delay:.3s}
+@keyframes tdB{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+
+.chat-input-wrap{padding:1rem 1.5rem;background:var(--s1);border-top:1px solid var(--border);flex-shrink:0}
+.input-row{display:flex;gap:10px;align-items:flex-end}
+textarea#msg-input{flex:1;background:var(--s2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:'Instrument Sans',sans-serif;font-size:14px;padding:11px 14px;resize:none;min-height:46px;max-height:130px;outline:none;transition:border-color .15s;line-height:1.5}
+textarea#msg-input:focus{border-color:var(--green-b)}
+textarea#msg-input::placeholder{color:var(--muted)}
+.send-btn{width:46px;height:46px;border-radius:var(--r);background:var(--green);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.send-btn:hover{opacity:.9;box-shadow:0 4px 16px rgba(34,212,143,.3)}.send-btn:disabled{opacity:.3;cursor:not-allowed;box-shadow:none}
+.send-btn svg{width:18px;height:18px;fill:#040c08}
+
+/* CALL MODE */
+.call-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;background:var(--bg);position:relative;overflow:hidden}
+.call-bg-ring{position:absolute;border-radius:50%;border:1px solid rgba(34,212,143,0.05);animation:ringPulse 3s ease-in-out infinite}
+.call-bg-ring:nth-child(1){width:300px;height:300px;animation-delay:0s}
+.call-bg-ring:nth-child(2){width:480px;height:480px;animation-delay:.6s}
+.call-bg-ring:nth-child(3){width:660px;height:660px;animation-delay:1.2s}
+@keyframes ringPulse{0%,100%{opacity:.8;transform:scale(1)}50%{opacity:.2;transform:scale(1.015)}}
+.call-center{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:500px}
+.call-avatar{width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:26px;position:relative;margin-bottom:1rem;flex-shrink:0}
+.call-avatar-ring{position:absolute;inset:-7px;border-radius:50%;border:2px solid var(--green);opacity:0;transition:opacity .3s}
+.call-avatar.speaking .call-avatar-ring{opacity:1;animation:callRing 1.8s ease-in-out infinite}
+@keyframes callRing{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.07);opacity:.25}}
+.call-name{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:4px}
+.call-status{font-size:13px;color:var(--muted2);margin-bottom:1.25rem;display:flex;align-items:center;gap:6px}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;flex-shrink:0}
+
+.call-transcript{width:100%;background:var(--s1);border:1px solid var(--border);border-radius:var(--r-lg);padding:1rem;max-height:190px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem}
+.ct-line{font-size:13px;line-height:1.55;animation:msgIn .2s ease}
+.ct-line.them{color:var(--muted2)}.ct-line.me{text-align:right}
+.ct-label{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px;color:var(--muted)}
+.ct-line.me .ct-label{color:var(--blue)}
+.ct-text{background:var(--s2);padding:6px 11px;border-radius:10px;border:1px solid var(--border);display:inline-block;max-width:90%;text-align:left}
+.ct-line.me .ct-text{background:var(--s3);border-color:var(--border2)}
+
+.call-input-area{width:100%}
+.call-input-row{display:flex;gap:10px;align-items:flex-end;margin-bottom:10px}
+textarea#call-input{flex:1;background:var(--s2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:'Instrument Sans',sans-serif;font-size:14px;padding:11px 14px;resize:none;min-height:46px;max-height:100px;outline:none;transition:border-color .15s;line-height:1.5}
+textarea#call-input:focus{border-color:var(--blue-b)}
+textarea#call-input::placeholder{color:var(--muted)}
+.call-send-btn{width:46px;height:46px;border-radius:50%;background:var(--green);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.call-send-btn:hover{box-shadow:0 4px 20px rgba(34,212,143,.4)}.call-send-btn:disabled{opacity:.3;cursor:not-allowed;box-shadow:none}
+.call-send-btn svg{width:18px;height:18px;fill:#040c08}
+.end-call-btn{width:100%;padding:12px;border-radius:var(--r);background:var(--red-s);border:1px solid var(--red-b);color:var(--red);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.end-call-btn:hover{background:rgba(240,82,82,.22)}
+
+/* FEEDBACK */
+#screen-feedback{flex-direction:column;overflow-y:auto;align-items:center;padding:2rem 1rem}
+.feedback-wrap{width:100%;max-width:680px;display:flex;flex-direction:column;gap:1.25rem;padding-bottom:2rem}
+.feedback-header{text-align:center;padding:1rem 0 .5rem}
+.feedback-header .label{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted2);font-weight:600;margin-bottom:.5rem}
+.overall-score-ring{width:100px;height:100px;margin:0 auto 1rem;position:relative}
+.overall-score-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--s2);stroke-width:8}
+.ring-fg{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dasharray 1s ease}
+.ring-number{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1}
+.feedback-title-main{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px}
+.score-grid{display:grid;gap:10px}
+.score-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r-lg);padding:1rem;text-align:center}
+.score-card .sc-label{font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:6px}
+.score-card .sc-num{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;line-height:1;margin-bottom:4px}
+.score-card .sc-bar-bg{height:4px;background:var(--s3);border-radius:2px;overflow:hidden;margin-top:8px}
+.score-card .sc-bar{height:100%;border-radius:2px;transition:width .8s ease}
+.fb-section{background:var(--s1);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.25rem}
+.fb-section-title{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.fb-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.fb-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:14px;line-height:1.6;color:var(--muted2)}
+.fb-item:last-child{border-bottom:none;padding-bottom:0}.fb-item:first-child{padding-top:0}
+.fb-icon{font-size:14px;flex-shrink:0;margin-top:2px}
+.fb-verdict{background:var(--s2);border-radius:var(--r);padding:1rem 1.25rem;font-size:14px;line-height:1.7;color:var(--muted2);border-left:3px solid var(--green)}
+.action-row{display:flex;gap:10px}
+.action-row button{flex:1;padding:13px;border-radius:var(--r);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;border:none}
+.btn-retry{background:var(--s2);border:1px solid var(--border2) !important;color:var(--muted2)}.btn-retry:hover{color:var(--text)}
+.btn-next{background:var(--green);color:#040c08}.btn-next:hover{box-shadow:0 6px 24px rgba(34,212,143,.3)}
+
+.loading-overlay{position:fixed;inset:0;background:rgba(8,11,15,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:100;backdrop-filter:blur(4px)}
+.spinner{width:40px;height:40px;border:3px solid var(--s3);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay p{font-size:14px;color:var(--muted2)}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--s3);border-radius:10px}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading" style="display:none">
+  <div class="spinner"></div>
+  <p id="loading-msg">Analysing your session...</p>
+</div>
+
+<!-- SCREEN: LANDING -->
+<div class="screen active" id="screen-landing">
+  <div class="bg-glow"></div>
+  <div class="landing-inner">
+    <div class="brand"><div class="brand-dot"></div>FitClose Trainer</div>
+    <h1 class="landing-title">Close More.<br><span>Train Harder.</span></h1>
+    <p class="landing-sub">Roleplay selling a fitness programme to real-feeling clients. Handle objections, close the deal, get rated.</p>
+
+    <div class="section-label">Choose your client</div>
+    <div class="level-cards">
+      <div class="level-card easy selected" onclick="selectLevel(0,this)">
+        <div class="level-badge">Easy</div>
+        <div class="level-name">Jordan</div>
+        <div class="level-desc">Curious first-timer. A little nervous. 1–2 soft objections.</div>
+      </div>
+      <div class="level-card medium" onclick="selectLevel(1,this)">
+        <div class="level-badge">Medium</div>
+        <div class="level-name">Rachel</div>
+        <div class="level-desc">Busy professional. Price-conscious. Has quit programmes before.</div>
+      </div>
+      <div class="level-card hard" onclick="selectLevel(2,this)">
+        <div class="level-badge">Hard</div>
+        <div class="level-name">Marcus</div>
+        <div class="level-desc">Full sceptic. 5 tough objections. Will not make it easy.</div>
+      </div>
+    </div>
+
+    <div class="section-label">Choose your format</div>
+    <div class="mode-toggle">
+      <div class="mode-card selected" onclick="selectMode('text',this)">
+        <div class="mode-icon">💬</div>
+        <div>
+          <div class="mode-title">Text Chat</div>
+          <div class="mode-desc">Type your pitch like a DM or message thread.</div>
+        </div>
+      </div>
+      <div class="mode-card" onclick="selectMode('call',this)">
+        <div class="mode-icon">📞</div>
+        <div>
+          <div class="mode-title">Phone Call</div>
+          <div class="mode-desc">Live call UI. Type what you'd say out loud.</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="start-btn" onclick="startSession()">Start Roleplay →</button>
+  </div>
+</div>
+
+<!-- SCREEN: CHAT -->
+<div class="screen" id="screen-chat">
+  <div class="chat-topbar">
+    <div class="topbar-left">
+      <button class="back-btn" onclick="goHome()">←</button>
+      <div class="client-avatar" id="chat-avatar"></div>
+      <div>
+        <div class="client-name-sm" id="chat-name"></div>
+        <div class="client-tag-sm" id="chat-tag"></div>
+      </div>
+      <div class="level-pill" id="chat-level-pill"></div>
+      <div class="mode-pill" id="chat-mode-pill">💬 Text</div>
+    </div>
+    <div class="topbar-right">
+      <div class="msg-count" id="msg-count">0 exchanges</div>
+      <button class="finish-btn" id="finish-btn" onclick="finishSession()" disabled>Finish &amp; Get Feedback</button>
+    </div>
+  </div>
+
+  <!-- TEXT BODY -->
+  <div class="chat-body" id="chat-body"></div>
+
+  <!-- CALL BODY -->
+  <div class="call-screen" id="call-screen" style="display:none">
+    <div class="call-bg-ring"></div>
+    <div class="call-bg-ring"></div>
+    <div class="call-bg-ring"></div>
+    <div class="call-center">
+      <div class="call-avatar" id="call-avatar-big">
+        <div class="call-avatar-ring"></div>
+        <span id="call-avatar-initials">JD</span>
+      </div>
+      <div class="call-name" id="call-name-big">Jordan</div>
+      <div class="call-status"><div class="status-dot"></div><span id="call-status-text">Connected</span></div>
+      <div class="call-transcript" id="call-transcript"></div>
+      <div class="call-input-area">
+        <div class="call-input-row">
+          <textarea id="call-input" placeholder="Type what you'd say on the call..." rows="1"
+            onkeydown="handleCallKey(event)" oninput="resizeTA2(this)"></textarea>
+          <button class="call-send-btn" id="call-send-btn" onclick="sendCallMsg()" disabled>
+            <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+          </button>
+        </div>
+        <button class="end-call-btn" onclick="finishSession()">📵 End Call &amp; Get Feedback</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEXT INPUT -->
+  <div class="chat-input-wrap" id="text-input-wrap">
+    <div class="input-row">
+      <textarea id="msg-input" placeholder="Type your response as the sales rep..." rows="1"
+        onkeydown="handleKey(event)" oninput="resizeTA(this)"></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMsg()" disabled>
+        <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: FEEDBACK -->
+<div class="screen" id="screen-feedback">
+  <div class="feedback-wrap">
+    <div class="feedback-header">
+      <div class="label">Session Complete</div>
+      <div class="overall-score-ring">
+        <svg viewBox="0 0 100 100">
+          <circle class="ring-bg" cx="50" cy="50" r="42"/>
+          <circle class="ring-fg" id="ring-fg" cx="50" cy="50" r="42" stroke-dasharray="0 264"/>
+        </svg>
+        <div class="ring-number" id="ring-number" style="color:var(--green)">—</div>
+      </div>
+      <div class="feedback-title-main" id="fb-title">Your Performance</div>
+      <div style="font-size:13px;color:var(--muted2)">vs <span id="fb-client-name"></span> &nbsp;·&nbsp; <span id="fb-mode-label" style="color:var(--blue)"></span></div>
+    </div>
+    <div class="score-grid" id="score-grid"></div>
+    <div class="fb-section">
+      <div class="fb-section-title"><div class="fb-dot" style="background:var(--green)"></div>What you did well</div>
+      <div id="strengths-list"></div>
+    </div>
+    <div class="fb-section">
+      <div class="fb-section-title"><div class="fb-dot" style="background:var(--amber)"></div>What to improve</div>
+      <div id="improve-list"></div>
+    </div>
+    <div class="fb-verdict" id="fb-verdict"></div>
+    <div class="action-row">
+      <button class="btn-retry" onclick="retryLevel()">↺ Retry same level</button>
+      <button class="btn-next" id="next-level-btn" onclick="nextLevel()">Next level →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LEVELS=[
+  {id:0,name:"Jordan",tag:"First-time gym-goer",initials:"JD",
+   avatarGrad:"linear-gradient(135deg,#1a5c3a,#22d48f)",avatarText:"#040c08",
+   pillClass:"pill-easy",pillLabel:"Easy",
+   system:`You are Jordan, a 26-year-old who wants to get fit but has never joined a fitness programme. You filled out a form online about losing weight and building confidence. You're warm and a little nervous.
+
+Objections to raise naturally (1-2 during conversation):
+1. "I'm not sure I have enough time with work."
+2. "What if I'm not fit enough to start?"
+
+Personality: warm, slightly self-deprecating, responds well to encouragement and empathy.
+
+Rules:
+- Open by saying you saw the programme online and ask what it involves
+- Raise objections naturally as conversation develops
+- If the rep builds rapport, addresses fears, explains value clearly — agree to sign up
+- If they're pushy or skip your concerns — stay hesitant
+- 2-3 sentences per response
+- NEVER break character`},
+  {id:1,name:"Rachel",tag:"Marketing manager, 34",initials:"RC",
+   avatarGrad:"linear-gradient(135deg,#6b3a00,#f5b944)",avatarText:"#1a0d00",
+   pillClass:"pill-medium",pillLabel:"Medium",
+   system:`You are Rachel, a 34-year-old marketing manager. You clicked an ad about a 12-week transformation programme. You're interested but realistic — you've quit programmes before and hate wasting money.
+
+Objections to raise (2-3 throughout):
+1. "How much does it actually cost?"
+2. "I've tried things like this before and never stick to them. What makes this different?"
+3. "I'm really busy — I barely have time to cook dinner, let alone work out."
+
+Personality: direct, professional, slightly guarded. Responds to evidence and specifics, not hype.
+
+Rules:
+- Open with: "Yeah I saw the ad. Walk me through what's included."
+- Push for specifics when the rep is vague
+- If they handle all 3 objections with substance — agree to start
+- If they're evasive or overpromise — stay sceptical
+- Sharp, direct responses, 2-3 sentences
+- NEVER break character`},
+  {id:2,name:"Marcus",tag:"Sceptical prospect, 41",initials:"MK",
+   avatarGrad:"linear-gradient(135deg,#5c1a1a,#f05252)",avatarText:"#1a0000",
+   pillClass:"pill-hard",pillLabel:"Hard",
+   system:`You are Marcus, a 41-year-old fed up with fitness industry hype. A friend tagged you in a post about this programme. You're sceptical, blunt, and have tried 3 programmes that didn't work.
+
+Objections to raise in order:
+1. "I've spent loads on programmes before and got nothing. Why is this different?"
+2. "Those transformation photos look fake. Real people don't change like that."
+3. "It's too expensive. I can go to the gym myself for a tenner a month."
+4. "I don't want to be on a strict diet. I've got a life."
+5. "I'll think about it." (final resistance — the close attempt)
+
+Personality: gruff, direct, not easily impressed. Respects honesty and logic. Dry humour.
+
+Rules:
+- Open: "My mate sent me this. Not really looking to buy anything, just curious."
+- Challenge every claim
+- Don't give in easily — make them work for it
+- If they handle ALL objections with substance and handle "I'll think about it" professionally — grudgingly agree
+- If they get defensive or crack — shut down
+- Blunt, 1-3 sentences per response
+- NEVER break character`}
+];
+
+let selectedLevel=0, selectedMode='text';
+let messages=[], exchangeCount=0, isWaiting=false;
+
+function selectLevel(idx,el){
+  selectedLevel=idx;
+  document.querySelectorAll('.level-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function selectMode(mode,el){
+  selectedMode=mode;
+  document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goHome(){
+  if(messages.length>0&&!confirm('Go back? Session will be lost.'))return;
+  resetSession();showScreen('screen-landing');
+}
+function resetSession(){
+  messages=[];exchangeCount=0;isWaiting=false;
+  document.getElementById('chat-body').innerHTML='';
+  document.getElementById('call-transcript').innerHTML='';
+  document.getElementById('msg-count').textContent='0 exchanges';
+  document.getElementById('finish-btn').disabled=true;
+  ['msg-input','call-input'].forEach(id=>{const el=document.getElementById(id);if(el){el.value='';el.style.height=''}});
+  document.getElementById('send-btn').disabled=true;
+  document.getElementById('call-send-btn').disabled=true;
+  document.getElementById('call-avatar-big').classList.remove('speaking');
+}
+function startSession(){
+  resetSession();
+  const lv=LEVELS[selectedLevel];
+  const av=document.getElementById('chat-avatar');
+  av.textContent=lv.initials;av.style.background=lv.avatarGrad;av.style.color=lv.avatarText;
+  document.getElementById('chat-name').textContent=lv.name;
+  document.getElementById('chat-tag').textContent=lv.tag;
+  const pill=document.getElementById('chat-level-pill');
+  pill.className='level-pill '+lv.pillClass;pill.textContent=lv.pillLabel;
+  document.getElementById('chat-mode-pill').textContent=selectedMode==='call'?'📞 Call':'💬 Text';
+
+  const isCall=selectedMode==='call';
+  document.getElementById('chat-body').style.display=isCall?'none':'flex';
+  document.getElementById('text-input-wrap').style.display=isCall?'none':'block';
+  document.getElementById('call-screen').style.display=isCall?'flex':'none';
+
+  if(isCall){
+    const cav=document.getElementById('call-avatar-big');
+    cav.style.background=lv.avatarGrad;cav.style.color=lv.avatarText;
+    document.getElementById('call-avatar-initials').textContent=lv.initials;
+    document.getElementById('call-name-big').textContent=lv.name;
+    document.getElementById('call-status-text').textContent='Connected';
+    addCallSys(`Call connected with ${lv.name}. Start talking — type what you'd say.`);
+    document.getElementById('call-input').focus();
+  } else {
+    addSys(`Session started. You're speaking with ${lv.name}. Goal: close them on the fitness programme.`);
+    document.getElementById('msg-input').focus();
+  }
+  showScreen('screen-chat');
+}
+
+/* TEXT MODE */
+function addSys(t){
+  const el=document.createElement('div');el.className='sys-msg';el.textContent=t;
+  document.getElementById('chat-body').appendChild(el);scroll('chat-body');
+}
+function addBubble(role,text){
+  const lv=LEVELS[selectedLevel],isMe=role==='user';
+  const w=document.createElement('div');w.className='bubble-wrap '+(isMe?'me':'them');
+  const avSt=isMe?'background:linear-gradient(135deg,#163d50,#4da6ff);color:#01121d':`background:${lv.avatarGrad};color:${lv.avatarText}`;
+  w.innerHTML=`<div class="b-avatar" style="${avSt}">${isMe?'ME':lv.initials}</div><div><div class="b-name">${isMe?'You':lv.name}</div><div class="bubble">${esc(text)}</div></div>`;
+  document.getElementById('chat-body').appendChild(w);scroll('chat-body');
+}
+function showTypingText(){
+  const lv=LEVELS[selectedLevel];
+  const w=document.createElement('div');w.className='bubble-wrap them';w.id='typing-ind';
+  w.innerHTML=`<div class="b-avatar" style="background:${lv.avatarGrad};color:${lv.avatarText}">${lv.initials}</div><div><div class="b-name">${lv.name}</div><div class="bubble"><div class="typing-bub"><div class="td"></div><div class="td"></div><div class="td"></div></div></div></div>`;
+  document.getElementById('chat-body').appendChild(w);scroll('chat-body');
+}
+async function sendMsg(){
+  const inp=document.getElementById('msg-input'),t=inp.value.trim();
+  if(!t||isWaiting)return;
+  inp.value='';resizeTA(inp);document.getElementById('send-btn').disabled=true;
+  messages.push({role:'user',content:t});addBubble('user',t);
+  exchangeCount++;updateCount();isWaiting=true;showTypingText();
+  const reply=await callAPI();
+  const ti=document.getElementById('typing-ind');if(ti)ti.remove();
+  addBubble('client',reply);messages.push({role:'assistant',content:reply});
+  isWaiting=false;document.getElementById('send-btn').disabled=false;
+  document.getElementById('msg-input').focus();
+}
+
+/* CALL MODE */
+function addCallSys(t){
+  const el=document.createElement('div');el.className='ct-line them';
+  el.innerHTML=`<div class="ct-label" style="color:var(--muted)">System</div><div class="ct-text" style="font-style:italic;color:var(--muted)">${esc(t)}</div>`;
+  document.getElementById('call-transcript').appendChild(el);scroll('call-transcript');
+}
+function addCallLine(role,text){
+  const lv=LEVELS[selectedLevel],isMe=role==='user';
+  const el=document.createElement('div');el.className='ct-line '+(isMe?'me':'them');
+  el.innerHTML=`<div class="ct-label">${isMe?'You':lv.name}</div><div class="ct-text">${esc(text)}</div>`;
+  document.getElementById('call-transcript').appendChild(el);scroll('call-transcript');
+}
+function showCallTyping(){
+  const lv=LEVELS[selectedLevel];
+  const el=document.createElement('div');el.className='ct-line them';el.id='call-typing';
+  el.innerHTML=`<div class="ct-label">${lv.name}</div><div class="ct-text"><span style="letter-spacing:3px;color:var(--muted)">···</span></div>`;
+  document.getElementById('call-transcript').appendChild(el);scroll('call-transcript');
+  document.getElementById('call-avatar-big').classList.add('speaking');
+  document.getElementById('call-status-text').textContent='Speaking...';
+}
+function removeCallTyping(){
+  const el=document.getElementById('call-typing');if(el)el.remove();
+  document.getElementById('call-avatar-big').classList.remove('speaking');
+  document.getElementById('call-status-text').textContent='Connected';
+}
+async function sendCallMsg(){
+  const inp=document.getElementById('call-input'),t=inp.value.trim();
+  if(!t||isWaiting)return;
+  inp.value='';resizeTA2(inp);document.getElementById('call-send-btn').disabled=true;
+  messages.push({role:'user',content:t});addCallLine('user',t);
+  exchangeCount++;updateCount();isWaiting=true;showCallTyping();
+  const reply=await callAPI();
+  removeCallTyping();addCallLine('client',reply);
+  messages.push({role:'assistant',content:reply});
+  isWaiting=false;document.getElementById('call-send-btn').disabled=false;
+  document.getElementById('call-input').focus();
+}
+
+/* SHARED */
+async function callAPI(){
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:LEVELS[selectedLevel].system,messages})
+    });
+    const d=await res.json();return d.content?.[0]?.text||'Something went wrong.';
+  }catch(e){return '[Connection error. Please try again.]';}
+}
+function updateCount(){
+  document.getElementById('msg-count').textContent=exchangeCount+(exchangeCount===1?' exchange':' exchanges');
+  if(exchangeCount>=3)document.getElementById('finish-btn').disabled=false;
+}
+
+async function finishSession(){
+  if(messages.length<4){alert('Keep going — have at least 3 exchanges before finishing.');return;}
+  document.getElementById('loading').style.display='flex';
+  document.getElementById('loading-msg').textContent='Analysing your session...';
+  const lv=LEVELS[selectedLevel];
+  const transcript=messages.map(m=>(m.role==='user'?'Sales Rep':lv.name)+': '+m.content).join('\n\n');
+  const modeNote=selectedMode==='call'?'This was a phone call roleplay (typed as spoken words).':'This was a text message conversation.';
+  const prompt=`You are an expert fitness sales coach. ${modeNote} Analyse this transcript where a sales rep tried to close ${lv.name} on a fitness programme.
+
+TRANSCRIPT:
+${transcript}
+
+Rate on 5 dimensions (1-10 each):
+1. rapport_building — genuine connection and empathy
+2. objection_handling — addressed objections with confidence and substance
+3. value_presentation — communicated programme value clearly
+4. closing_technique — asked for the close appropriately
+5. listening_skills — responded to what the client actually said
+
+Also:
+- overall_score: weighted average out of 10 (1 decimal)
+- strengths: array of 2-3 specific things done well (reference real moments from transcript)
+- improvements: array of 2-3 specific actionable improvements
+- verdict: 2-3 sentence coaching summary. Direct assessment, then key lesson.
+- outcome: "closed", "almost", or "lost"
+
+Respond ONLY with valid JSON, no markdown:
+{"rapport_building":N,"objection_handling":N,"value_presentation":N,"closing_technique":N,"listening_skills":N,"overall_score":N.N,"strengths":["..."],"improvements":["..."],"verdict":"...","outcome":"..."}`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const d=await res.json();
+    let raw=(d.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim();
+    const r=JSON.parse(raw);
+    document.getElementById('loading').style.display='none';
+    renderFeedback(r);
+  }catch(e){
+    document.getElementById('loading').style.display='none';
+    alert('Could not generate feedback. Please try again.');
+  }
+}
+
+function renderFeedback(r){
+  const lv=LEVELS[selectedLevel],overall=r.overall_score||0;
+  const color=overall>=7?'var(--green)':overall>=5?'var(--amber)':'var(--red)';
+  const circ=2*Math.PI*42,dash=(overall/10)*circ;
+  const rfg=document.getElementById('ring-fg');
+  rfg.style.stroke=color;rfg.style.strokeDasharray=dash+' '+circ;
+  document.getElementById('ring-number').textContent=overall;
+  document.getElementById('ring-number').style.color=color;
+  const outcomes={closed:'🎯 Client closed!',almost:'🤏 So close — not quite',lost:'❌ Client not closed'};
+  document.getElementById('fb-title').textContent=outcomes[r.outcome]||'Session Complete';
+  document.getElementById('fb-client-name').textContent=lv.name;
+  document.getElementById('fb-mode-label').textContent=selectedMode==='call'?'📞 Phone Call':'💬 Text Chat';
+  const dims=[{key:'rapport_building',label:'Rapport'},{key:'objection_handling',label:'Objections'},{key:'value_presentation',label:'Value'},{key:'closing_technique',label:'Closing'},{key:'listening_skills',label:'Listening'}];
+  const sg=document.getElementById('score-grid');
+  sg.style.gridTemplateColumns='repeat(5,1fr)';
+  sg.innerHTML=dims.map(d=>{const v=r[d.key]||0,c=v>=7?'var(--green)':v>=5?'var(--amber)':'var(--red)';
+    return `<div class="score-card"><div class="sc-label">${d.label}</div><div class="sc-num" style="color:${c}">${v}</div><div class="sc-bar-bg"><div class="sc-bar" style="width:${v*10}%;background:${c}"></div></div></div>`;
+  }).join('');
+  document.getElementById('strengths-list').innerHTML=(r.strengths||[]).map(s=>`<div class="fb-item"><div class="fb-icon">✓</div><div>${esc(s)}</div></div>`).join('')||noItem;
+  document.getElementById('improve-list').innerHTML=(r.improvements||[]).map(s=>`<div class="fb-item"><div class="fb-icon">→</div><div>${esc(s)}</div></div>`).join('')||noItem;
+  document.getElementById('fb-verdict').innerHTML=esc(r.verdict||'');
+  document.getElementById('next-level-btn').textContent=selectedLevel>=2?'↺ Back to menu':'Next level →';
+  showScreen('screen-feedback');
+  setTimeout(()=>{rfg.style.strokeDasharray=dash+' '+circ;
+    document.querySelectorAll('.sc-bar').forEach(b=>{const w=b.style.width;b.style.width='0';setTimeout(()=>b.style.width=w,120)});
+  },100);
+}
+
+const noItem='<div class="fb-item"><div class="fb-icon">—</div><div>None noted.</div></div>';
+function retryLevel(){resetSession();startSession();}
+function nextLevel(){
+  const next=selectedLevel+1;
+  if(next>2){resetSession();showScreen('screen-landing');return;}
+  selectedLevel=next;
+  document.querySelectorAll('.level-card').forEach((c,i)=>c.classList.toggle('selected',i===next));
+  resetSession();startSession();
+}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}}
+function handleCallKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendCallMsg();}}
+function resizeTA(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,130)+'px';document.getElementById('send-btn').disabled=!el.value.trim()||isWaiting;}
+function resizeTA2(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';document.getElementById('call-send-btn').disabled=!el.value.trim()||isWaiting;}
+function scroll(id){const b=document.getElementById(id);if(b)b.scrollTop=b.scrollHeight;}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');}
+
+async function callAPI(){
+  try{
+    const res = await fetch('http://localhost:3000/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages,
+        system: LEVELS[selectedLevel].system
+      })
+    });
+
+    const data = await res.json();
+    return data.reply || 'Something went wrong.';
+  } catch(e){
+    return '[Connection error. Please try again.]';
+  }
+}
+
+</script>
+</body>
+</html>
