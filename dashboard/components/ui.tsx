@@ -39,7 +39,8 @@ export function Input({ className, ...p }: InputHTMLAttributes<HTMLInputElement>
     <input
       {...p}
       className={cx(
-        "min-h-10 w-full rounded-lg border border-line bg-bg px-3 text-sm text-ink placeholder:text-muted/70 focus:border-accent focus:outline-none [color-scheme:dark]",
+        "min-h-10 rounded-lg border border-line bg-bg px-3 text-sm text-ink placeholder:text-muted/70 focus:border-accent focus:outline-none [color-scheme:dark]",
+        !/(^|\s)w-/.test(className ?? "") && "w-full",
         className,
       )}
     />

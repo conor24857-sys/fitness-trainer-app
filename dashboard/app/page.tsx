@@ -18,7 +18,7 @@ export default function TodayPage() {
   const exam = nextExam(db, today);
 
   return (
-    <div className="grid gap-4 lg:grid-cols-12">
+    <div className="grid grid-cols-1 gap-4 [&>*]:min-w-0 lg:grid-cols-12">
       <div className="space-y-4 lg:col-span-5">
         <Stats overdue={agenda.overdue.length} today={agenda.today.length} exam={exam} />
         {agenda.overdue.length > 0 && (

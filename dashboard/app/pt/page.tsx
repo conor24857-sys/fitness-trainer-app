@@ -20,13 +20,13 @@ export default function PTPage() {
   if (!ready) return <Loading />;
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 [&>*]:min-w-0 lg:grid-cols-3">
         <PrioritiesCard />
         <ChecklistCard editable />
         <LinksCard />
       </div>
       <Pipeline />
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 [&>*]:min-w-0 xl:grid-cols-2">
         <Clients />
         <Content />
       </div>
@@ -157,16 +157,22 @@ function Clients() {
             const late = !!c.nextCheckIn && c.nextCheckIn < today;
             const due = c.nextCheckIn === today;
             return (
-              <div key={c.id} className={cx("grid grid-cols-2 items-center gap-2 rounded-lg border p-2 sm:grid-cols-[1.4fr_1fr_auto_auto_auto_auto]", late ? "border-danger bg-danger/10" : due ? "border-accent" : "border-line")}>
-                <InlineInput value={c.name} onSave={(v) => update("clients", c.id, { name: v })} aria-label="Name" className="font-medium" />
-                <InlineInput value={c.plan} onSave={(v) => update("clients", c.id, { plan: v })} aria-label="Plan" placeholder="Plan" />
+              <div key={c.id} className={cx("flex flex-wrap items-end gap-2 rounded-lg border p-2", late ? "border-danger bg-danger/10" : due ? "border-accent" : "border-line")}>
+                <label className="min-w-36 flex-[2] text-xs text-muted">
+                  Name
+                  <InlineInput value={c.name} onSave={(v) => update("clients", c.id, { name: v })} className={cx("text-base font-medium", late && "text-danger")} />
+                </label>
+                <label className="min-w-32 flex-[1.5] text-xs text-muted">
+                  Plan
+                  <InlineInput value={c.plan} onSave={(v) => update("clients", c.id, { plan: v })} placeholder="Plan" />
+                </label>
                 <label className={cx("text-xs", late ? "text-danger" : "text-muted")}>
                   Next check-in
-                  <InlineInput type="date" value={c.nextCheckIn} onSave={(v) => update("clients", c.id, { nextCheckIn: v })} className={late ? "border-danger text-danger" : ""} />
+                  <InlineInput type="date" value={c.nextCheckIn} onSave={(v) => update("clients", c.id, { nextCheckIn: v })} className={cx("block w-auto", late && "border-danger text-danger")} />
                 </label>
                 <label className="text-xs text-muted">
                   Last contact
-                  <InlineInput type="date" value={c.lastContact} onSave={(v) => update("clients", c.id, { lastContact: v })} />
+                  <InlineInput type="date" value={c.lastContact} onSave={(v) => update("clients", c.id, { lastContact: v })} className="block w-auto" />
                 </label>
                 <Button variant="ghost" onClick={() => update("clients", c.id, { lastContact: today, nextCheckIn: addDays(today, 7) })} title="Set last contact to today and next check-in to a week from now">
                   Checked in

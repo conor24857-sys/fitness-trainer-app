@@ -14,7 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <DataProvider>
           <Header />
           <ReminderNotifier />
-          <main className="mx-auto max-w-[1600px] px-4 pb-12 pt-4 sm:px-6">{children}</main>
+          <main className="mx-auto max-w-[1600px] overflow-x-hidden px-4 pb-12 pt-4 sm:px-6">{children}</main>
         </DataProvider>
       </body>
     </html>

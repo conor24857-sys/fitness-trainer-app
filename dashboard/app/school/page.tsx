@@ -10,7 +10,7 @@ export default function SchoolPage() {
   if (!ready) return <Loading />;
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-4 [&>*]:min-w-0 lg:grid-cols-12">
         <div className="space-y-4 lg:col-span-8">
           <Assignments />
         </div>
