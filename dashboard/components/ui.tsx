@@ -170,3 +170,30 @@ export function EditableText({ value, onSave, className, placeholder }: { value:
 export function Loading() {
   return <p className="p-6 text-muted">Loading…</p>;
 }
+
+/** Input that saves on blur / Enter. Good for table cells and dates. */
+export function InlineInput({ value, onSave, className, ...p }: Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "onChange"> & { value: string; onSave: (v: string) => void }) {
+  const [v, setV] = useState(value);
+  const [prev, setPrev] = useState(value);
+  if (value !== prev) {
+    setPrev(value);
+    setV(value);
+  }
+  return (
+    <Input
+      {...p}
+      value={v}
+      onChange={(e) => {
+        setV(e.target.value);
+        if (p.type === "date" || p.type === "datetime-local") onSave(e.target.value);
+      }}
+      onBlur={() => v !== value && onSave(v)}
+      onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
+      className={className}
+    />
+  );
+}
+
+export function SectionTitle({ id, children }: { id?: string; children: ReactNode }) {
+  return <h2 id={id} className="scroll-mt-28 pt-2 text-lg font-semibold text-muted">{children}</h2>;
+}
