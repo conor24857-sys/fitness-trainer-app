@@ -32,7 +32,7 @@ export function HabitsCard({ full = false }: { full?: boolean }) {
                         key={d}
                         onClick={() => toggle(h.id, h.log, d)}
                         title={d}
-                        className={cx("grid h-8 w-8 place-items-center rounded-md border text-xs", on ? "border-accent bg-accent text-black" : "border-line text-muted hover:border-accent", d === today && "ring-1 ring-ink/40")}
+                        className={cx("grid h-8 w-8 place-items-center rounded-md border text-xs", on ? "border-accent bg-accent text-black" : "border-hud/15 text-muted hover:border-accent", d === today && "ring-1 ring-ink/40")}
                       >
                         {parseYmd(d).toLocaleDateString("en-GB", { weekday: "narrow" })}
                       </button>

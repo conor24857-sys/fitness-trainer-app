@@ -40,7 +40,7 @@ function Todos() {
   return (
     <Card title={`To-do (${open.length})`} action={<button className="text-sm text-muted hover:text-ink" onClick={() => setShowDone(!showDone)}>{showDone ? "Hide" : "Show"} done ({done.length})</button>}>
       {!open.length && <Empty>All clear.</Empty>}
-      <ul className="divide-y divide-line">
+      <ul className="divide-y divide-hud/10">
         {[...open, ...(showDone ? done : [])].map((t) => {
           const late = !t.done && !!t.due && t.due < today;
           return (
@@ -93,7 +93,7 @@ function Goals() {
       }
     >
       <div className="mb-3 flex items-center gap-3">
-        <div className="h-2 flex-1 overflow-hidden rounded-full bg-line">
+        <div className="h-2 flex-1 overflow-hidden rounded-full bg-hud/10">
           <div className="h-full bg-accent transition-all" style={{ width: `${list.length ? (done / list.length) * 100 : 0}%` }} />
         </div>
         <span className="text-sm tabular-nums text-muted">{done}/{list.length}</span>
@@ -133,7 +133,7 @@ function Dates() {
       <Card title="Important dates">
         <p className="mb-2 text-xs text-muted">Birthdays, appointments, renewals. No bank details or passwords.</p>
         {!list.length && <Empty>Nothing coming up.</Empty>}
-        <ul className="divide-y divide-line">
+        <ul className="divide-y divide-hud/10">
           {list.map((d) => {
             const n = daysUntil(d.when, today);
             return (

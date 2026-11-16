@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { Badge, Button, Card, Empty, cx } from "../ui";
 
 interface Msg { id: string; subject: string; from: string; date: number; unread: boolean }
@@ -21,11 +21,12 @@ async function copyText(text: string) {
   }
 }
 
-/** Read-only Gmail: unread count and the 10 latest inbox messages. */
-export function EmailPanel() {
+const GmailCtx = createContext<{ s: State | null; loading: boolean; load: () => void; urlError: string | null } | null>(null);
+
+/** Fetches the inbox once for the whole Today screen (stat tile + panel share it). */
+export function GmailProvider({ children }: { children: ReactNode }) {
   const [s, setS] = useState<State | null>(null);
   const [loading, setLoading] = useState(false);
-  const [copied, setCopied] = useState<string | null>(null);
   const [urlError, setUrlError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -51,6 +52,20 @@ export function EmailPanel() {
     return () => clearInterval(t);
   }, [load]);
 
+  return <GmailCtx.Provider value={{ s, loading, load, urlError }}>{children}</GmailCtx.Provider>;
+}
+
+export function useGmail() {
+  const g = useContext(GmailCtx);
+  if (!g) throw new Error("useGmail must be inside GmailProvider");
+  return g;
+}
+
+/** Read-only Gmail: unread count and the 10 latest inbox messages. */
+export function EmailPanel() {
+  const { s, loading, load, urlError } = useGmail();
+  const [copied, setCopied] = useState<string | null>(null);
+
   const copy = async (id: string) => {
     setCopied("…" + id);
     const r = await fetch(`/api/gmail/message/${id}`);
@@ -72,6 +87,7 @@ export function EmailPanel() {
   };
 
   return (
+    <div id="email" className="scroll-mt-24">
     <Card
       title={
         <span className="flex items-center gap-2">
@@ -99,7 +115,7 @@ export function EmailPanel() {
       {s?.connected && s.messages && (
         <>
           {!s.messages.length && <Empty>Inbox is empty.</Empty>}
-          <ul className="divide-y divide-line">
+          <ul className="divide-y divide-hud/10">
             {s.messages.map((m) => (
               <li key={m.id} className="py-2">
                 <div className="flex items-baseline gap-2">
@@ -115,7 +131,7 @@ export function EmailPanel() {
                     {m.unread && <span className="mr-1 text-accent">●</span>}
                     {m.subject}
                   </p>
-                  <button onClick={() => copy(m.id)} className="shrink-0 rounded-md border border-line px-2 py-1 text-xs text-muted hover:border-accent hover:text-accent" title="Copy email for a reply draft">
+                  <button onClick={() => copy(m.id)} className="shrink-0 rounded-md border border-hud/25 px-2 py-1 font-mono text-[11px] uppercase text-muted hover:border-accent hover:text-accent" title="Copy email for a reply draft">
                     {copied === m.id ? "Copied ✓" : copied === "…" + m.id ? "…" : "Copy for reply"}
                   </button>
                 </div>
@@ -129,5 +145,6 @@ export function EmailPanel() {
         </>
       )}
     </Card>
+    </div>
   );
 }

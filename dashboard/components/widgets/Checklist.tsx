@@ -11,7 +11,7 @@ export function ChecklistCard({ editable = false }: { editable?: boolean }) {
   const pct = db.checklist.length ? Math.round((done / db.checklist.length) * 100) : 0;
   return (
     <Card title="Daily checklist" action={<span className="text-sm text-muted">{done}/{db.checklist.length} · resets each morning</span>}>
-      <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-line">
+      <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-hud/10">
         <div className="h-full bg-accent transition-all" style={{ width: `${pct}%` }} />
       </div>
       <ul className="space-y-2">

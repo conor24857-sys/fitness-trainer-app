@@ -45,9 +45,9 @@ function Pipeline() {
   const overdueCount = db.leads.filter((l) => l.followUp && l.followUp < today && l.stage !== "client" && l.stage !== "lost").length;
 
   return (
-    <section id="pipeline" className="scroll-mt-28 rounded-2xl border border-line bg-surface p-4 sm:p-5">
+    <section id="pipeline" className="hud scroll-mt-28 rounded-2xl p-4 sm:p-5">
       <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold">Pipeline</h2>
+        <h2 className="flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.18em] text-hud sm:text-sm"><span className="h-1.5 w-1.5 rounded-full bg-hud" />Pipeline</h2>
         {overdueCount > 0 && <Badge tone="danger">{overdueCount} past follow-up</Badge>}
       </header>
       <div className="grid gap-3 overflow-x-auto pb-1 md:grid-cols-5">
@@ -60,7 +60,7 @@ function Pipeline() {
               onDrop={() => { if (dragId) update("leads", dragId, { stage: s.key }); setDragId(null); }}
               className="min-h-24 rounded-xl bg-bg/60 p-2"
             >
-              <p className="mb-2 flex items-center justify-between px-1 text-sm font-semibold text-muted">
+              <p className="mb-2 flex items-center justify-between px-1 font-mono text-[11px] uppercase tracking-widest text-muted">
                 {s.label} <span className="tabular-nums">{leads.length}</span>
               </p>
               <div className="space-y-2">
@@ -97,7 +97,7 @@ function LeadCard({ lead, onDrag }: { lead: Lead; onDrag: (id: string) => void }
     <div
       draggable
       onDragStart={() => onDrag(lead.id)}
-      className={cx("rounded-lg border bg-raised p-3", late ? "border-danger bg-danger/10" : dueToday ? "border-accent" : "border-line")}
+      className={cx("rounded-lg border bg-raised p-3", late ? "border-danger bg-danger/10" : dueToday ? "border-accent" : "border-hud/15")}
     >
       <button className="w-full text-left" onClick={() => setOpen(!open)}>
         <p className="font-medium">{lead.name}</p>
@@ -157,7 +157,7 @@ function Clients() {
             const late = !!c.nextCheckIn && c.nextCheckIn < today;
             const due = c.nextCheckIn === today;
             return (
-              <div key={c.id} className={cx("flex flex-wrap items-end gap-2 rounded-lg border p-2", late ? "border-danger bg-danger/10" : due ? "border-accent" : "border-line")}>
+              <div key={c.id} className={cx("flex flex-wrap items-end gap-2 rounded-lg border p-2", late ? "border-danger bg-danger/10" : due ? "border-accent" : "border-hud/15")}>
                 <label className="min-w-36 flex-[2] text-xs text-muted">
                   Name
                   <InlineInput value={c.name} onSave={(v) => update("clients", c.id, { name: v })} className={cx("text-base font-medium", late && "text-danger")} />
@@ -226,7 +226,7 @@ function Content() {
       >
         <p className="mb-2 text-sm text-muted">{posted}/{list.length} posted</p>
         {!list.length && !undated.length && <Empty>No posts planned this week.</Empty>}
-        <ul className="divide-y divide-line">
+        <ul className="divide-y divide-hud/10">
           {[...list, ...undated].map((p) => {
             const late = p.status !== "posted" && !!p.date && p.date < today;
             return (
@@ -268,7 +268,7 @@ function LinksCard() {
       <div className="grid gap-2">
         {db.links.map((l) => (
           <div key={l.id} className="flex items-center gap-2">
-            <a href={l.url} target="_blank" rel="noopener noreferrer" className="flex min-h-11 flex-1 items-center justify-between rounded-lg border border-line px-3 font-medium hover:border-accent hover:text-accent">
+            <a href={l.url} target="_blank" rel="noopener noreferrer" className="flex min-h-11 flex-1 items-center justify-between rounded-lg border border-hud/15 px-3 font-medium hover:border-accent hover:text-accent">
               {l.label} <span aria-hidden>↗</span>
             </a>
             {edit && <DeleteBtn onClick={() => remove("links", l.id)} />}

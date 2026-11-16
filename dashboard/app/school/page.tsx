@@ -67,7 +67,7 @@ function Assignments() {
           const late = open && n < 0;
           const soon = open && n >= 0 && n <= 3;
           return (
-            <li key={a.id} className={cx("flex flex-wrap items-center gap-3 rounded-lg border p-3", late ? "border-danger bg-danger/10" : soon ? "border-accent bg-accent/5" : "border-line")}>
+            <li key={a.id} className={cx("flex flex-wrap items-center gap-3 rounded-lg border p-3", late ? "border-danger bg-danger/10" : soon ? "border-accent bg-accent/5" : "border-hud/15")}>
               <div className="min-w-40 flex-1">
                 <p className={cx("font-medium", !open && "text-muted line-through", late && "text-danger")}>{a.title}</p>
                 <p className="text-sm text-muted">{subj(a.subjectId)}</p>
@@ -113,7 +113,7 @@ function Exams() {
           {upcoming.map((e) => {
             const n = daysUntil(e.date, today);
             return (
-              <li key={e.id} className={cx("flex items-center gap-3 rounded-lg border p-3", n <= 3 ? "border-accent" : "border-line")}>
+              <li key={e.id} className={cx("flex items-center gap-3 rounded-lg border p-3", n <= 3 ? "border-accent" : "border-hud/15")}>
                 <div className={cx("w-16 shrink-0 text-center", n <= 7 ? "text-accent" : "text-ink")}>
                   <p className="text-3xl font-bold tabular-nums leading-none">{n}</p>
                   <p className="text-[10px] uppercase text-muted">{n === 1 ? "day" : "days"}</p>
@@ -160,7 +160,7 @@ function Planner() {
           {WEEKDAYS.map((d, i) => {
             const blocks = db.studyBlocks.filter((b) => b.day === i).sort((a, b) => a.start.localeCompare(b.start));
             return (
-              <div key={d} className={cx("min-h-28 rounded-xl border p-2", i === todayIdx ? "border-accent bg-accent/5" : "border-line bg-bg/60")}>
+              <div key={d} className={cx("min-h-28 rounded-xl border p-2", i === todayIdx ? "border-accent bg-accent/5" : "border-hud/15 bg-bg/60")}>
                 <p className={cx("mb-2 text-sm font-semibold", i === todayIdx ? "text-accent" : "text-muted")}>{d}</p>
                 <div className="space-y-1.5">
                   {blocks.map((b) => (
@@ -215,7 +215,7 @@ function SubjectCard({ subject }: { subject: Subject }) {
   const [notes, setNotes] = useState(subject.notes);
   const openCount = db.assignments.filter((a) => a.subjectId === subject.id && a.status !== "done").length;
   return (
-    <div className="rounded-xl border border-line bg-bg/60 p-3">
+    <div className="rounded-xl border border-hud/15 bg-bg/60 p-3">
       <div className="mb-2 flex items-center gap-2">
         <p className="flex-1 font-semibold">{subject.name}</p>
         {openCount > 0 && <Badge tone="accent">{openCount} open</Badge>}

@@ -7,10 +7,13 @@ export function cx(...c: (string | false | null | undefined)[]) {
 
 export function Card({ title, action, children, className, tone }: { title?: ReactNode; action?: ReactNode; children: ReactNode; className?: string; tone?: "danger" }) {
   return (
-    <section className={cx("rounded-2xl border bg-surface p-4 sm:p-5", tone === "danger" ? "border-danger/50" : "border-line", className)}>
+    <section className={cx("hud rounded-2xl p-4 sm:p-5", tone === "danger" && "hud-danger", className)}>
       {(title || action) && (
-        <header className="mb-3 flex items-center justify-between gap-2">
-          <h2 className="text-base font-semibold tracking-tight text-ink sm:text-lg">{title}</h2>
+        <header className="mb-3 flex items-center justify-between gap-2 border-b border-hud/10 pb-2">
+          <h2 className={cx("flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.18em] sm:text-sm", tone === "danger" ? "text-danger" : "text-hud")}>
+            <span className={cx("h-1.5 w-1.5 rounded-full", tone === "danger" ? "bg-danger" : "bg-hud")} />
+            {title}
+          </h2>
           {action}
         </header>
       )}
@@ -25,8 +28,8 @@ export function Button({ variant = "primary", className, ...p }: ButtonHTMLAttri
       {...p}
       className={cx(
         "inline-flex min-h-10 items-center justify-center gap-1 rounded-lg px-3 text-sm font-medium transition disabled:opacity-40",
-        variant === "primary" && "bg-accent text-black hover:bg-accent/90",
-        variant === "ghost" && "border border-line text-muted hover:border-accent hover:text-ink",
+        variant === "primary" && "bg-accent text-black hover:bg-accent/90 hover:shadow-[0_0_16px_rgb(255_91_31/0.5)]",
+        variant === "ghost" && "border border-hud/25 text-muted hover:border-hud hover:text-ink hover:shadow-[0_0_12px_rgb(56_214_255/0.25)]",
         variant === "danger" && "text-muted hover:text-danger",
         className,
       )}
@@ -39,7 +42,7 @@ export function Input({ className, ...p }: InputHTMLAttributes<HTMLInputElement>
     <input
       {...p}
       className={cx(
-        "min-h-10 rounded-lg border border-line bg-bg px-3 text-sm text-ink placeholder:text-muted/70 focus:border-accent focus:outline-none [color-scheme:dark]",
+        "min-h-10 rounded-lg border border-hud/20 bg-bg/70 px-3 text-sm text-ink placeholder:text-muted/70 focus:border-hud focus:outline-none [color-scheme:dark]",
         !/(^|\s)w-/.test(className ?? "") && "w-full",
         className,
       )}
@@ -51,7 +54,7 @@ export function Textarea({ className, ...p }: React.TextareaHTMLAttributes<HTMLT
   return (
     <textarea
       {...p}
-      className={cx("w-full rounded-lg border border-line bg-bg p-3 text-sm text-ink placeholder:text-muted/70 focus:border-accent focus:outline-none", className)}
+      className={cx("w-full rounded-lg border border-hud/20 bg-bg/70 p-3 text-sm text-ink placeholder:text-muted/70 focus:border-hud focus:outline-none", className)}
     />
   );
 }
@@ -60,7 +63,7 @@ export function Select({ className, children, ...p }: SelectHTMLAttributes<HTMLS
   return (
     <select
       {...p}
-      className={cx("min-h-10 rounded-lg border border-line bg-bg px-2 text-sm text-ink focus:border-accent focus:outline-none [color-scheme:dark]", className)}
+      className={cx("min-h-10 rounded-lg border border-hud/20 bg-bg/70 px-2 text-sm text-ink focus:border-hud focus:outline-none [color-scheme:dark]", className)}
     >
       {children}
     </select>
@@ -77,7 +80,7 @@ export function Check({ checked, onChange, label }: { checked: boolean; onChange
       onClick={() => onChange(!checked)}
       className={cx(
         "grid h-6 w-6 shrink-0 place-items-center rounded-md border-2 transition",
-        checked ? "border-accent bg-accent text-black" : "border-line hover:border-accent",
+        checked ? "border-accent bg-accent text-black shadow-[0_0_10px_rgb(255_91_31/0.5)]" : "border-hud/30 hover:border-hud",
       )}
     >
       {checked && (
@@ -93,8 +96,8 @@ export function Badge({ children, tone = "muted" }: { children: ReactNode; tone?
   return (
     <span
       className={cx(
-        "inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-medium",
-        tone === "muted" && "bg-line text-muted",
+        "inline-flex shrink-0 items-center rounded px-2 py-0.5 font-mono text-[11px] font-medium uppercase tracking-wider",
+        tone === "muted" && "bg-hud/10 text-muted",
         tone === "accent" && "bg-accent/15 text-accent",
         tone === "danger" && "bg-danger/15 text-danger",
         tone === "warn" && "bg-warn/15 text-warn",
@@ -169,7 +172,7 @@ export function EditableText({ value, onSave, className, placeholder }: { value:
 }
 
 export function Loading() {
-  return <p className="p-6 text-muted">Loading…</p>;
+  return <p className="p-6 font-mono text-sm uppercase tracking-widest text-hud pulse-dot">Loading systems…</p>;
 }
 
 /** Input that saves on blur / Enter. Good for table cells and dates. */
@@ -196,5 +199,26 @@ export function InlineInput({ value, onSave, className, ...p }: Omit<InputHTMLAt
 }
 
 export function SectionTitle({ id, children }: { id?: string; children: ReactNode }) {
-  return <h2 id={id} className="scroll-mt-28 pt-2 text-lg font-semibold text-muted">{children}</h2>;
+  return <h2 id={id} className="scroll-mt-28 pt-2 font-mono text-sm uppercase tracking-[0.18em] text-hud">{children}</h2>;
+}
+
+/** Circular progress ring. value 0..1 */
+export function Ring({ value, size = 84, label, sub, color = "var(--color-hud)" }: { value: number; size?: number; label: ReactNode; sub?: ReactNode; color?: string }) {
+  const r = size / 2 - 6;
+  const c = 2 * Math.PI * r;
+  const v = Math.max(0, Math.min(1, value || 0));
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg width={size} height={size} className="-rotate-90">
+          <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgb(56 214 255 / 0.12)" strokeWidth="6" />
+          <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth="6" strokeLinecap="round"
+            strokeDasharray={c} strokeDashoffset={c * (1 - v)} style={{ transition: "stroke-dashoffset .6s", filter: `drop-shadow(0 0 6px ${color})` }} />
+        </svg>
+        <span className="absolute inset-0 grid place-items-center font-mono text-lg font-semibold tabular-nums">{Math.round(v * 100)}%</span>
+      </div>
+      <p className="font-mono text-[11px] uppercase tracking-widest text-muted">{label}</p>
+      {sub && <p className="-mt-1 text-xs text-muted/80">{sub}</p>}
+    </div>
+  );
 }
