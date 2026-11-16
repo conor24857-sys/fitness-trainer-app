@@ -25,7 +25,7 @@ npm start          # http://127.0.0.1:3100
 
 Stop it with Ctrl+C in the window, or double-click `stop-dashboard.bat`.
 
-After pulling code changes, run `npm run build` again (or delete the `.next` folder and the .bat rebuilds).
+After downloading a new version, just start it again: the launcher (and `npm start`) notices the code changed and rebuilds automatically. Keep your `data` folder when you replace the files.
 
 ## Where your data lives
 
