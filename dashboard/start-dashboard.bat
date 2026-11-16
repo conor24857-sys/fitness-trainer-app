@@ -4,8 +4,17 @@ REM First run installs dependencies into this folder and builds the app. Nothing
 cd /d "%~dp0"
 
 where node >nul 2>nul
+if errorlevel 1 if exist "%ProgramFiles%\nodejs\node.exe" set "PATH=%ProgramFiles%\nodejs;%PATH%"
+where node >nul 2>nul
 if errorlevel 1 (
-  echo Node.js is not installed. Install the LTS version from https://nodejs.org and run this again.
+  echo Node.js is not installed. Installing Node.js LTS with winget ^(Windows' built-in installer^)...
+  echo This is a normal system-wide install of Node.js. Windows may ask for permission.
+  winget install -e --id OpenJS.NodeJS.LTS --accept-package-agreements --accept-source-agreements
+  set "PATH=%ProgramFiles%\nodejs;%PATH%"
+)
+where node >nul 2>nul
+if errorlevel 1 (
+  echo Could not install Node.js automatically. Install the LTS version from https://nodejs.org and run this again.
   pause
   exit /b 1
 )
