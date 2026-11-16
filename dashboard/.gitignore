@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# Personal data and secrets: never commit
+data/
+.env
+.env.*
+!.env.example
+*token*.json
+credentials*.json
+client_secret*.json
